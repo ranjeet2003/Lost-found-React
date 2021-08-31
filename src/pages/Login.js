@@ -108,16 +108,19 @@ class Login extends Component {
     event.preventDefault();
     try {
       this.setState({ isLoading: true });
-      const response = await fetch("http://localhost:5555/api/users/login", {
-        method: "POST",
-        headers: {
-          "Content-type": "application/json",
-        },
-        body: JSON.stringify({
-          email: this.state.email,
-          password: this.state.password,
-        }),
-      });
+      const response = await fetch(
+        "https://lfbackend.herokuapp.com/api/users/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-type": "application/json",
+          },
+          body: JSON.stringify({
+            email: this.state.email,
+            password: this.state.password,
+          }),
+        }
+      );
       const responseData = await response.json();
       if (!response.ok) {
         throw new Error(responseData.message);
