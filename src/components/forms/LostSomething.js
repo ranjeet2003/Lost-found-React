@@ -2,14 +2,15 @@ import React, { Component } from "react";
 import tw from "twin.macro";
 import styled from "styled-components";
 import { css } from "styled-components/macro"; //eslint-disable-line
-import FileBase from "react-file-base64";
+// import FileBase from "react-file-base64";
 import {
   SectionHeading,
   Subheading as SubheadingBase,
 } from "components/misc/Headings.js";
 import { PrimaryButton as PrimaryButtonBase } from "components/misc/Buttons.js";
 import EmailIllustrationSrc from "images/email-illustration.svg";
-import Header from "components/hero/CustomHeader.js";
+import SignedHeader from "../headers/SignedHeader";
+
 import AnimationRevealPage from "helpers/AnimationRevealPage.js";
 import ErrorModel from "../../helpers/ErrorModal";
 import Spinner from "../../helpers/LoadingSpinner";
@@ -77,42 +78,59 @@ export default class LostSomething extends Component {
     });
   }
 
+  checkImage = () => {
+    if (!this.state.docImage) {
+      return false;
+    }
+    return true;
+  };
+
   errorHandler = () => {
     this.setState({ isError: null });
   };
 
   onSubmitHandler = async (event) => {
     event.preventDefault();
-    this.setState({ isLoading: true });
+    try {
+      this.setState({ isLoading: true });
+      console.log("isloading: " + this.state.isLoading);
 
-    var formdata = new FormData();
-    formdata.append("name", this.state.docName);
-    formdata.append("description", this.state.docDescription);
-    formdata.append("serial", this.state.docSerial);
-    formdata.append(
-      "img",
-      // fileInput.files[0],
-      this.state.docImage
-    );
+      var formdata = new FormData();
+      formdata.append("name", this.state.docName);
+      formdata.append("description", this.state.docDescription);
+      formdata.append("serial", this.state.docSerial);
+      formdata.append("img", this.state.docImage);
 
-    var requestOptions = {
-      method: "POST",
-      body: formdata,
-      redirect: "follow",
-    };
+      var requestOptions = {
+        method: "POST",
+        body: formdata,
+        redirect: "follow",
+        credentials: "include",
+      };
 
-    fetch("http://localhost:5555/api/docs/lostDocs", requestOptions)
-      .then((response) => response.text())
-      .then((result) => console.log(result))
-      .catch((error) => {
-        console.log("error", error);
+      if (!this.checkImage()) {
         this.setState({
-          isError:
-            error.message || "Something Went Wrong, Please Try Again Later",
+          isError: "Please select an image of your document",
         });
+      } else {
+        const response = await fetch(
+          "http://localhost:5555/api/docs/lostDocs",
+          requestOptions
+        );
+        const responseData = await response.json();
+        console.log("isloading: " + this.state.isLoading);
+        if (!response.ok) {
+          throw new Error(responseData.message);
+        }
+        console.log(responseData);
+      }
+    } catch (err) {
+      console.log(err);
+      this.setState({
+        isError: err.message || "Something Went Wrong, Please Try Again Later",
       });
+    }
     this.setState({ isLoading: false });
-    // */
   };
 
   render(
@@ -133,8 +151,11 @@ export default class LostSomething extends Component {
     return (
       <>
         <ErrorModel error={this.state.isError} onClear={this.errorHandler} />
+
         <AnimationRevealPage>
-          <Header roundedHeaderButton={true} />
+          {/* <Header roundedHeaderButton={true} /> */}
+          <SignedHeader roundedHeaderButton={true} />
+
           <Container>
             {this.state.isLoading && <Spinner asOverlay />}
             <TwoColumn>

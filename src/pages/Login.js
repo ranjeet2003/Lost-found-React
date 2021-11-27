@@ -1,20 +1,16 @@
 import { React, Component } from "react";
 import { Link } from "react-router-dom";
-// import { hashHistory } from "react-router";
 import AnimationRevealPage from "helpers/AnimationRevealPage.js";
+import SignedSaaSProductLandingPage from "../demos/SignedSaaSProductLandingPage";
 import { Container as ContainerBase } from "components/misc/Layouts";
 import Header from "components/hero/CustomHeader.js";
 import tw from "twin.macro";
 import styled from "styled-components";
-import { css } from "styled-components/macro"; //eslint-disable-line
 import illustration from "images/login-illustration.svg";
 import logo from "images/logo-new.jpg";
 import googleIconImageSrc from "images/google-icon.png";
 import twitterIconImageSrc from "images/twitter-icon.png";
 import { ReactComponent as LoginIcon } from "feather-icons/dist/icons/log-in.svg";
-
-// import Header from "../components/headers/light";
-
 import ErrorModel from "../helpers/ErrorModal";
 import Spinner from "../helpers/LoadingSpinner";
 
@@ -47,9 +43,9 @@ const DividerTextContainer = tw.div`my-12 border-b text-center relative`;
 const DividerText = tw.div`leading-none px-2 inline-block text-sm text-gray-600 tracking-wide font-medium bg-white transform -translate-y-1/2 absolute inset-x-0 top-1/2 bg-transparent`;
 
 const Form = tw.form`mx-auto max-w-xs`;
-const Input = tw.input`w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5 first:mt-0`;
+const Input = tw.input`w-full  px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-green-500 focus:bg-white mt-5 first:mt-0`;
 const SubmitButton = styled.button`
-  ${tw`mt-5 tracking-wide font-semibold bg-primary-500 text-gray-100 w-full py-4 rounded-lg hover:bg-primary-900 transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none`}
+  ${tw`mt-5 tracking-wide font-semibold bg-green-500 text-gray-100 w-full py-4 rounded-lg hover:bg-primary-900 transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none`}
   .icon {
     ${tw`w-6 h-6 -ml-2`}
   }
@@ -85,6 +81,7 @@ class Login extends Component {
       isError: null,
       username: "",
       alert: null,
+      isLoggedIn: false,
     };
     this.onChangeHandler = this.onChangeHandler.bind(this);
     this.onSubmitHandler = this.onSubmitHandler.bind(this);
@@ -107,28 +104,45 @@ class Login extends Component {
   onSubmitHandler = async (event) => {
     event.preventDefault();
     try {
+      // if (!this.state.email || !this.state.mobile) {
+      //   this.setState({
+      //     isError: "Please enter your E-mail and password",
+      //   });
+      // } else {
       this.setState({ isLoading: true });
-      const response = await fetch(
-        "https://lfbackend.herokuapp.com/api/users/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-type": "application/json",
-          },
-          body: JSON.stringify({
-            email: this.state.email,
-            password: this.state.password,
-          }),
-        }
-      );
+      const response = await fetch("http://localhost:5555/api/users/login", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Cache: "no-cache",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          email: this.state.email,
+          password: this.state.password,
+        }),
+      });
       const responseData = await response.json();
       if (!response.ok) {
         throw new Error(responseData.message);
       }
       console.log(responseData);
+      this.setState({
+        username: responseData.data.user.name,
+      });
+      console.log(responseData.data.user.name);
+      // console.log(responseData.status);
 
-      this.setState({ username: responseData.name });
-      // console.log(this.state.username);
+      if (response && responseData.status === "success") {
+        this.setState({
+          isLoggedIn: true,
+        });
+        console.log("Logged In: " + this.state.isLoggedIn);
+      }
+      this.setState({ username: responseData.data.user.name });
+      // }
+      console.log(this.state.username);
     } catch (err) {
       console.log(err);
       this.setState({
@@ -136,6 +150,7 @@ class Login extends Component {
       });
     }
     this.setState({ isLoading: false });
+    console.log(window.location.pathname);
   };
 
   render(
@@ -161,82 +176,92 @@ class Login extends Component {
     return (
       <>
         <ErrorModel error={this.state.isError} onClear={this.errorHandler} />
-        <AnimationRevealPage>
-          <Header roundedHeaderButton={true} name={this.state.username} />
-          <Container>
-            {this.state.isLoading && <Spinner asOverlay />}
+        {this.state.isLoggedIn ? (
+          <>
+            {window.history.pushState("/", "Page 2", "/")}
+            <SignedSaaSProductLandingPage isLoggedIn={this.state.isLoggedIn} />
+          </>
+        ) : (
+          <AnimationRevealPage>
+            <Header roundedHeaderButton={true} />
 
-            <Content>
-              <MainContainer>
-                <LogoLink href={logoLinkUrl}>
-                  <LogoImage src={logo} />
-                </LogoLink>
-                <MainContent>
-                  <Heading>{headingText}</Heading>
-                  <FormContainer>
-                    <SocialButtonsContainer>
-                      {socialButtons.map((socialButton, index) => (
-                        <SocialButton key={index} href={socialButton.url}>
-                          <span className="iconContainer">
-                            <img
-                              src={socialButton.iconImageSrc}
-                              className="icon"
-                              alt=""
-                            />
-                          </span>
-                          <span className="text">{socialButton.text}</span>
-                        </SocialButton>
-                      ))}
-                    </SocialButtonsContainer>
-                    <DividerTextContainer>
-                      <DividerText>Or Sign in with your e-mail</DividerText>
-                    </DividerTextContainer>
-                    <Form onSubmit={this.onSubmitHandler}>
-                      <Input
-                        type="email"
-                        placeholder="Email"
-                        name="email"
-                        value={this.state.email}
-                        onChange={this.onChangeHandler}
-                      />
-                      <Input
-                        type="password"
-                        placeholder="Password"
-                        name="password"
-                        value={this.state.passoword}
-                        onChange={this.onChangeHandler}
-                      />
-                      <SubmitButton type="submit">
-                        <SubmitButtonIcon className="icon" />
-                        <span className="text">{submitButtonText}</span>
-                      </SubmitButton>
-                    </Form>
-                    <p tw="mt-6 text-xs text-gray-600 text-center">
-                      <a
-                        href={forgotPasswordUrl}
-                        tw="border-b border-gray-500 border-dotted"
-                      >
-                        Forgot Password ?
-                      </a>
-                    </p>
-                    <p tw="mt-8 text-sm text-gray-600 text-center">
-                      Don't have an account?{" "}
-                      {/* <a
+            <Container>
+              {this.state.isLoading && <Spinner asOverlay />}
+
+              <Content>
+                <MainContainer>
+                  <LogoLink href={logoLinkUrl}>
+                    <LogoImage src={logo} />
+                  </LogoLink>
+                  <MainContent>
+                    <Heading>{headingText}</Heading>
+                    <FormContainer>
+                      <Form onSubmit={this.onSubmitHandler}>
+                        <Input
+                          type="email"
+                          placeholder="Email"
+                          name="email"
+                          value={this.state.email}
+                          onChange={this.onChangeHandler}
+                        />
+                        <Input
+                          type="password"
+                          placeholder="Password"
+                          name="password"
+                          value={this.state.passoword}
+                          onChange={this.onChangeHandler}
+                        />
+                        <SubmitButton type="submit">
+                          <SubmitButtonIcon className="icon" />
+                          <span className="text">{submitButtonText}</span>
+                        </SubmitButton>
+                      </Form>
+                      <DividerTextContainer>
+                        <DividerText>
+                          Or Sign in with your social account
+                        </DividerText>
+                      </DividerTextContainer>
+                      <SocialButtonsContainer>
+                        {socialButtons.map((socialButton, index) => (
+                          <SocialButton key={index} href={socialButton.url}>
+                            <span className="iconContainer">
+                              <img
+                                src={socialButton.iconImageSrc}
+                                className="icon"
+                                alt=""
+                              />
+                            </span>
+                            <span className="text">{socialButton.text}</span>
+                          </SocialButton>
+                        ))}
+                      </SocialButtonsContainer>
+                      <p tw="mt-6 text-xs text-gray-600 text-center">
+                        <a
+                          href={forgotPasswordUrl}
+                          tw="border-b border-gray-500 border-dotted"
+                        >
+                          Forgot Password ?
+                        </a>
+                      </p>
+                      <p tw="mt-8 text-sm text-gray-600 text-center">
+                        Don't have an account?{" "}
+                        {/* <a
                     href={signInUrl}
                     tw="border-b border-gray-500 border-dotted"
                   > */}
-                      <Link to="/signup">Sign Up</Link>
-                      {/* </a> */}
-                    </p>
-                  </FormContainer>
-                </MainContent>
-              </MainContainer>
-              <IllustrationContainer>
-                <IllustrationImage imageSrc={illustrationImageSrc} />
-              </IllustrationContainer>
-            </Content>
-          </Container>
-        </AnimationRevealPage>
+                        <Link to="/signup">Sign Up</Link>
+                        {/* </a> */}
+                      </p>
+                    </FormContainer>
+                  </MainContent>
+                </MainContainer>
+                <IllustrationContainer>
+                  <IllustrationImage imageSrc={illustrationImageSrc} />
+                </IllustrationContainer>
+              </Content>
+            </Container>
+          </AnimationRevealPage>
+        )}
       </>
     );
   }

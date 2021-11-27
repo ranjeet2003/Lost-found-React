@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import tw from "twin.macro";
 //eslint-disable-next-line
-import { css } from "styled-components/macro"; //eslint-disable-line
+
 import {
   SectionHeading,
   Subheading as SubheadingBase,
@@ -58,33 +58,26 @@ export default ({
   subheading = "Details you can see",
   description = "This is the data stats of our users.",
 }) => {
-  /*
-   * This componets has an array of object denoting the cards defined below. Each object in the cards array can have the key (Change it according to your need, you can also add more objects to have more cards in this feature component) or you can directly pass this using the cards prop:
-   *  1) title - the title of the card
-   *  2) description - the description of the card
-   *  If a key for a particular card is not provided, a default value is used
-   */
-  let totalUser = 0;
   let totalLostDocs = 0;
   let totalFoundDocs = 0;
   let totalMatchedAndReturnedDocs = 0;
-  let responseData;
-  let num;
+  let numUser;
 
-  const totalUsers = () => {
-    fetch("http://localhost:5555/api/users/numUser")
-      .then((response) => response.json())
-      .then((response) => {
-        num = response.users;
-        console.log(num);
-      });
+  const totalUsers = async () => {
+    const response = await fetch("http://localhost:5555/api/users/numUser");
+    const responseData = await response.json();
+    console.log(responseData);
+    numUser = responseData.totalUser;
+    console.log(numUser);
   };
   totalUsers();
   //   console.log(totalUser);
+  console.log(numUser);
+
   const defaultCards = [
     {
       title: "Total Users",
-      description: totalUser,
+      description: `${numUser} are enjoying project.`,
     },
     {
       title: "Total Lost Document Uploads",

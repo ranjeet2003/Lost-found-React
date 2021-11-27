@@ -4,7 +4,7 @@ import { FaRupeeSign } from "react-icons/fa";
 
 import { css } from "styled-components/macro"; //eslint-disable-line
 import AnimationRevealPage from "helpers/AnimationRevealPage.js";
-import Hero from "components/hero/TwoColumnWithInput.js";
+import SignedHero from "components/hero/SignedTwoColumnWithInput.js";
 import Features from "components/features/ThreeColWithSideImage";
 import MainFeature from "components/features/TwoColWithButton.js";
 import MainFeature2 from "components/features/TwoColWithTwoHorizontalFeaturesAndButton.js";
@@ -22,13 +22,16 @@ import donateImageSrc from "images/donate.jpg";
 // import { ReactComponent as BriefcaseIcon } from "feather-icons/dist/icons/briefcase.svg";
 // import { ReactComponent as MoneyIcon } from "feather-icons/dist/icons/dollar-sign.svg";
 
-export default (props) => {
+function SignedSaaSProductLandingPage(props) {
   const Subheading = tw.span`uppercase tracking-widest font-bold text-primary-500`;
   const HighlightedText = tw.span`text-primary-500`;
+  // console.log(props)
+  console.log("login props: " + props.isLoggedIn);
 
   return (
     <AnimationRevealPage>
-      <Hero roundedHeaderButton={true} />
+      <SignedHero roundedHeaderButton={true} />
+
       <Features
         // subheading={<Subheading>Features</Subheading>}
         heading={
@@ -204,4 +207,6 @@ export default (props) => {
       <Footer />
     </AnimationRevealPage>
   );
-};
+}
+
+export default SignedSaaSProductLandingPage;
