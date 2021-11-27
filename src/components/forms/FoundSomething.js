@@ -111,7 +111,7 @@ export default class FoundSomething extends Component {
         });
       } else {
         const response = await fetch(
-          "http://localhost:5555/api/docs/foundDocs",
+          "https://lfbackend.herokuapp.com/api/docs/foundDocs",
           requestOptions
         );
         const responseData = await response.json();

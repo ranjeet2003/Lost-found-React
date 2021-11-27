@@ -114,7 +114,7 @@ export default class LostSomething extends Component {
         });
       } else {
         const response = await fetch(
-          "http://localhost:5555/api/docs/lostDocs",
+          "https://lfbackend.herokuapp.com/api/docs/lostDocs",
           requestOptions
         );
         const responseData = await response.json();

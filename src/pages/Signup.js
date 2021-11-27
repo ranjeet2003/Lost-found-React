@@ -112,7 +112,7 @@ export default class Signup extends Component {
       } else {
         this.setState({ isLoading: true });
         const response = await fetch(
-          "http://localhost:5555/api/users/sendOTP",
+          "https://lfbackend.herokuapp.com/api/users/sendOTP",
           {
             method: "POST",
             headers: {
@@ -154,7 +154,7 @@ export default class Signup extends Component {
       } else {
         this.setState({ isLoading: true });
         const response = await fetch(
-          "http://localhost:5555/api/users/validateOTP",
+          "https://lfbackend.herokuapp.com/api/users/validateOTP",
           {
             method: "POST",
             headers: {
@@ -200,23 +200,26 @@ export default class Signup extends Component {
       } else {
         this.setState({ isLoading: true });
         // this.setState({isError: null})
-        const response = await fetch("http://localhost:5555/api/users/signup", {
-          method: "POST",
-          // credentials: "include",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            Cache: "no-cache",
-          },
-          credentials: "include",
+        const response = await fetch(
+          "https://lfbackend.herokuapp.com/api/users/signup",
+          {
+            method: "POST",
+            // credentials: "include",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              Cache: "no-cache",
+            },
+            credentials: "include",
 
-          body: JSON.stringify({
-            name: this.state.name,
-            email: this.state.email,
-            mobile: this.state.mobileNo,
-            password: this.state.password,
-          }),
-        });
+            body: JSON.stringify({
+              name: this.state.name,
+              email: this.state.email,
+              mobile: this.state.mobileNo,
+              password: this.state.password,
+            }),
+          }
+        );
         // var myHeaders = new Headers();
         const responseData = await response.json();
         console.log(response);

@@ -64,7 +64,9 @@ export default ({
   let numUser;
 
   const totalUsers = async () => {
-    const response = await fetch("http://localhost:5555/api/users/numUser");
+    const response = await fetch(
+      "https://lfbackend.herokuapp.com/api/users/numUser"
+    );
     const responseData = await response.json();
     console.log(responseData);
     numUser = responseData.totalUser;
